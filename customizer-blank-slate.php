@@ -37,7 +37,6 @@ if ( ! isset( $_GET[ QUERY_PARAM_NAME ] ) || QUERY_PARAM_VALUE !== wp_unslash( $
 }
 
 add_filter( 'customize_loaded_components', function() {
-
 	/*
 	 * Note the customize_register action is triggered in
 	 * WP_Customize_Manager::wp_loaded() which is itself the
@@ -47,7 +46,6 @@ add_filter( 'customize_loaded_components', function() {
 	 */
 	$priority = 1;
 	add_action( 'wp_loaded', function() {
-
 		/*
 		 * Remove all constructs from being registered,
 		 * whether in core, themes, or plugins.
@@ -59,10 +57,13 @@ add_filter( 'customize_loaded_components', function() {
 		 * callback which will register just the specific
 		 * panels, sections, controls, settings, etc
 		 * that are relevant. This can either be done
-		 * at a location as follows or it can be done
-		 * via a new wp_loaded handler at priority 9.
+		 * at a location as follows:
+		 *
+		 * add_action( 'customize_register', … );
+		 *
+		 * Or it can be done via a new wp_loaded
+		 * handler at priority 9.
 		 */
-		// @todo add_action( 'customize_register', … );
 	}, $priority );
 
 	// Short-circuit widgets, nav-menus, etc from being loaded.
