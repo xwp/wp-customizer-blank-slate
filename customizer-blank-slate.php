@@ -29,14 +29,14 @@
 namespace CustomizerBlankSlate;
 
 const QUERY_PARAM_NAME = 'customizer_blank_slate';
+const QUERY_PARAM_VALUE = 'on';
 
 // Short-circuit if customizer_blank_slate=on query param is not present.
-if ( ! isset( $_GET[ QUERY_PARAM_NAME ] ) || 'on' !== $_GET[ QUERY_PARAM_NAME ] ) {
+if ( ! isset( $_GET[ QUERY_PARAM_NAME ] ) || QUERY_PARAM_VALUE !== wp_unslash( $_GET[ QUERY_PARAM_NAME ] ) ) {
 	return;
 }
 
 add_filter( 'customize_loaded_components', function() {
-
 	/*
 	 * Note the customize_register action is triggered in
 	 * WP_Customize_Manager::wp_loaded() which is itself the
@@ -46,7 +46,6 @@ add_filter( 'customize_loaded_components', function() {
 	 */
 	$priority = 1;
 	add_action( 'wp_loaded', function() {
-
 		/*
 		 * Remove all constructs from being registered,
 		 * whether in core, themes, or plugins.
@@ -58,10 +57,13 @@ add_filter( 'customize_loaded_components', function() {
 		 * callback which will register just the specific
 		 * panels, sections, controls, settings, etc
 		 * that are relevant. This can either be done
-		 * at a location as follows or it can be done
-		 * via a new wp_loaded handler at priority 9.
+		 * at a location as follows:
+		 *
+		 * add_action( 'customize_register', … );
+		 *
+		 * Or it can be done via a new wp_loaded
+		 * handler at priority 9.
 		 */
-		// @todo add_action( 'customize_register', … );
 	}, $priority );
 
 	// Short-circuit widgets, nav-menus, etc from being loaded.
@@ -81,45 +83,22 @@ add_action( 'customize_controls_init', function() {
 	);
 } );
 
-// Persist the customizer_blank_slate=on query param on all previewed URLs.
-add_action( 'customize_controls_print_footer_scripts', function() {
-	?>
-	<script>
-		(function ( api, $ ) {
-			'use strict';
+// Enqueue the script to persist the customizer_blank_slate=on query param on all previewed URLs.
+add_action( 'customize_controls_enqueue_scripts', function() {
+	$handle = 'customizer-blank-slate';
+	$src = plugins_url( 'customizer-blank-slate.js', __FILE__ );
+	$deps = array( 'customize-controls' );
+	$ver = false;
+	$in_footer = true;
+	wp_enqueue_script( $handle, $src, $deps, $ver, $in_footer );
 
-			var queryParamName = <?php echo wp_json_encode( QUERY_PARAM_NAME ) ?>;
-
-			api.bind( 'ready', function() {
-
-				// Make sure that all previewed URLs include the customize_blank_slate query param.
-				var previousValidate = api.previewer.previewUrl.validate;
-				api.previewer.previewUrl.validate = function injectQueryParam( url ) {
-					var queryString, queryParams = {}, urlParser, validatedUrl;
-					validatedUrl = previousValidate.call( this, url );
-
-					// Parse the query params.
-					urlParser = document.createElement( 'a' );
-					urlParser.href = validatedUrl;
-					queryString = urlParser.search.substr( 1 );
-					_.each( queryString.split( '&' ), function( pair ) {
-						var parts = pair.split( '=', 2 );
-						if ( parts[0] ) {
-							queryParams[ decodeURIComponent( parts[0] ) ] = _.isUndefined( parts[1] ) ? null : decodeURIComponent( parts[1] );
-						}
-					} );
-
-					// Amend the query param if not present.
-					if ( 'on' !== queryParams[ queryParamName ] ) {
-						queryParams[ queryParamName ] = 'on';
-						urlParser.search = $.param( queryParams );
-						validatedUrl = urlParser.href;
-					}
-					return validatedUrl;
-				};
-			} );
-
-		} ( wp.customize, jQuery ));
-	</script>
-	<?php
+	$args = array(
+		'queryParamName' => QUERY_PARAM_NAME,
+		'queryParamValue' => QUERY_PARAM_VALUE,
+	);
+	wp_add_inline_script(
+		$handle,
+		sprintf( 'CustomizerBlankSlate.init( %s );', wp_json_encode( $args ) ),
+		'after'
+	);
 } );
