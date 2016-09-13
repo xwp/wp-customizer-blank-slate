@@ -46,11 +46,30 @@ add_filter( 'customize_loaded_components', function() {
 	 */
 	$priority = 1;
 	add_action( 'wp_loaded', function() {
+
+		global $wp_customize;
+
 		/*
 		 * Remove all constructs from being registered,
 		 * whether in core, themes, or plugins.
 		 */
 		remove_all_actions( 'customize_register' );
+
+		/*
+		 * Register the panel, section, and control types that would normally have  been
+		 * registered at customizer_register by WP_Customize_Manager::register_controls().
+		 */
+		$wp_customize->register_panel_type( 'WP_Customize_Panel' );
+		$wp_customize->register_section_type( 'WP_Customize_Section' );
+		$wp_customize->register_section_type( 'WP_Customize_Sidebar_Section' );
+		$wp_customize->register_control_type( 'WP_Customize_Color_Control' );
+		$wp_customize->register_control_type( 'WP_Customize_Media_Control' );
+		$wp_customize->register_control_type( 'WP_Customize_Upload_Control' );
+		$wp_customize->register_control_type( 'WP_Customize_Image_Control' );
+		$wp_customize->register_control_type( 'WP_Customize_Background_Image_Control' );
+		$wp_customize->register_control_type( 'WP_Customize_Cropped_Image_Control' );
+		$wp_customize->register_control_type( 'WP_Customize_Site_Icon_Control' );
+		$wp_customize->register_control_type( 'WP_Customize_Theme_Control' );
 
 		/*
 		 * Now register your own customize_register
