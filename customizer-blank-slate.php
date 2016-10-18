@@ -106,7 +106,7 @@ add_action( 'customize_controls_init', function() {
 add_action( 'customize_controls_enqueue_scripts', function() {
 	$handle = 'customizer-blank-slate';
 	$src = plugins_url( 'customizer-blank-slate.js', __FILE__ );
-	$deps = array( 'customize-controls' );
+	$deps = array( 'customize-controls', 'wp-util' );
 	$ver = false;
 	$in_footer = true;
 	wp_enqueue_script( $handle, $src, $deps, $ver, $in_footer );
