@@ -31,6 +31,50 @@ namespace CustomizerBlankSlate;
 const QUERY_PARAM_NAME = 'customizer_blank_slate';
 const QUERY_PARAM_VALUE = 'on';
 
+/**
+ * Register blank slate setting.
+ *
+ * @param \WP_Customize_Manager $wp_customize
+ */
+function register_blank_slate_setting( \WP_Customize_Manager $wp_customize ) {
+	$wp_customize->add_setting(
+		'etfrtb_site_name',
+		array(
+			'sanitize_callback' => 'sanitize_text_field',
+			'transport'         => 'postMessage',
+			'capability'        => 'manage_options',
+			'type'              => 'option',
+			'autoload'          => false,
+		)
+	);
+}
+
+/**
+ * Register blank slate section and control.
+ *
+ * @param \WP_Customize_Manager $wp_customize
+ */
+function register_blank_slate_ui( \WP_Customize_Manager $wp_customize ) {
+	register_blank_slate_setting( $wp_customize );
+
+	$wp_customize->add_section(
+		'etfrtb-email-designer',
+		array(
+			'title' => 'Test Section',
+		)
+	);
+
+	$wp_customize->add_control(
+		'etfrtb_site_name',
+		array(
+			'label'   => 'Test Label',
+			'section' => 'etfrtb-email-designer',
+		)
+	);
+}
+add_action( 'customize_register_blank_slate', __NAMESPACE__ . '\register_blank_slate_ui' );
+add_action( 'customize_register', __NAMESPACE__ . '\register_blank_slate_setting' );
+
 // Short-circuit if customizer_blank_slate=on query param is not present.
 if ( ! isset( $_GET[ QUERY_PARAM_NAME ] ) || QUERY_PARAM_VALUE !== wp_unslash( $_GET[ QUERY_PARAM_NAME ] ) ) {
 	return;
@@ -71,18 +115,8 @@ add_filter( 'customize_loaded_components', function() {
 		$wp_customize->register_control_type( 'WP_Customize_Site_Icon_Control' );
 		$wp_customize->register_control_type( 'WP_Customize_Theme_Control' );
 
-		/*
-		 * Now register your own customize_register
-		 * callback which will register just the specific
-		 * panels, sections, controls, settings, etc
-		 * that are relevant. This can either be done
-		 * at a location as follows:
-		 *
-		 * add_action( 'customize_register', … );
-		 *
-		 * Or it can be done via a new wp_loaded
-		 * handler at priority 9.
-		 */
+		// Do a custom action that just registers the subset of panels/sections/controls/settings as desired.
+		do_action( 'customize_register_blank_slate', $wp_customize );
 	}, $priority );
 
 	// Short-circuit widgets, nav-menus, etc from being loaded.
