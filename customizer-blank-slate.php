@@ -58,18 +58,21 @@ add_filter( 'customize_loaded_components', function() {
 		/*
 		 * Register the panel, section, and control types that would normally have  been
 		 * registered at customizer_register by WP_Customize_Manager::register_controls().
+		 * This is not needed as of 4.9 due to <https://core.trac.wordpress.org/ticket/42337>.
 		 */
-		$wp_customize->register_panel_type( 'WP_Customize_Panel' );
-		$wp_customize->register_section_type( 'WP_Customize_Section' );
-		$wp_customize->register_section_type( 'WP_Customize_Sidebar_Section' );
-		$wp_customize->register_control_type( 'WP_Customize_Color_Control' );
-		$wp_customize->register_control_type( 'WP_Customize_Media_Control' );
-		$wp_customize->register_control_type( 'WP_Customize_Upload_Control' );
-		$wp_customize->register_control_type( 'WP_Customize_Image_Control' );
-		$wp_customize->register_control_type( 'WP_Customize_Background_Image_Control' );
-		$wp_customize->register_control_type( 'WP_Customize_Cropped_Image_Control' );
-		$wp_customize->register_control_type( 'WP_Customize_Site_Icon_Control' );
-		$wp_customize->register_control_type( 'WP_Customize_Theme_Control' );
+		if ( version_compare( strtok( get_bloginfo( 'version' ), '-' ), '4.9', '<' ) ) {
+			$wp_customize->register_panel_type( 'WP_Customize_Panel' );
+			$wp_customize->register_section_type( 'WP_Customize_Section' );
+			$wp_customize->register_section_type( 'WP_Customize_Sidebar_Section' );
+			$wp_customize->register_control_type( 'WP_Customize_Color_Control' );
+			$wp_customize->register_control_type( 'WP_Customize_Media_Control' );
+			$wp_customize->register_control_type( 'WP_Customize_Upload_Control' );
+			$wp_customize->register_control_type( 'WP_Customize_Image_Control' );
+			$wp_customize->register_control_type( 'WP_Customize_Background_Image_Control' );
+			$wp_customize->register_control_type( 'WP_Customize_Cropped_Image_Control' );
+			$wp_customize->register_control_type( 'WP_Customize_Site_Icon_Control' );
+			$wp_customize->register_control_type( 'WP_Customize_Theme_Control' );
+		}
 
 		/*
 		 * Now register your own customize_register
